@@ -6,8 +6,7 @@ nltk
 corpus
 sklearn
 preprocessing
-feature_extraction
-text
+scikit-learn
 linear_model
 multiclass
 svm
