@@ -25,7 +25,7 @@ class ModelLink(Resource):
             
         return {'tags':tags},200,\
     { 'Access-Control-Allow-Origin': '*', \
-      'Access-Control-Allow-Methods' : 'PUT,GET' }
+      'Access-Control-Allow-Methods' : 'POST' }
 
 class ModelContent(Resource):
     
@@ -43,7 +43,7 @@ class ModelContent(Resource):
         
         return {'tags':tags},200,\
     { 'Access-Control-Allow-Origin': '*', \
-      'Access-Control-Allow-Methods' : 'PUT,GET' }
+      'Access-Control-Allow-Methods' : 'POST' }
 
 api.add_resource(ModelLink,"/link")
 api.add_resource(ModelContent,"/content")
