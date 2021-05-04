@@ -56,5 +56,5 @@ def firstRequest():
     MLModel.train()
     logger.info("Model trained")
 
-app.run(port=12345)
+#app.run(port=12345)
         
