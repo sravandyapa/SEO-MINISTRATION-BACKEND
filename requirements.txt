@@ -4,7 +4,6 @@ flask_cors
 pandas
 nltk
 corpus
-re
 sklearn.preprocessing
 sklearn.feature_extraction.text
 sklearn.linear_model
