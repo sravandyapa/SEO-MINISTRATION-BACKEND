@@ -32,15 +32,9 @@ class MLModel():
         
         dl = nltk.downloader.Downloader("http://nltk.org/nltk_data/")
         dl.download("stopwords")
-        
-        Train_X =df['Content']
-        Train_X = Train_X.apply(lambda x: " ".join(x.lower() for x in x.split()))
-        Train_X = Train_X.str.replace('[^\w\s]',' ')
         cls.stop = stopwords.words('english')
-        Train_X = Train_X.apply(lambda x: " ".join(x for x in x.split() if x not in cls.stop))
         
-        Train_X = Train_X.apply(lambda x: " ".join(de_repeat(x) for x in x.split()))
-        
+        Train_X = pickle.load(open('./modules/train.pkl', 'rb'))
         cls.binarizer = MultiLabelBinarizer()
         labels = cls.binarizer.fit_transform(df['Content_Tags'])
         
