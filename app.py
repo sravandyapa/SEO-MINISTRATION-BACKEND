@@ -43,11 +43,8 @@ class ModelContent(Resource):
 api.add_resource(ModelLink,"/link")
 api.add_resource(ModelContent,"/content")
 
-
-@app.before_first_request
-def firstRequest():
-    print("Model started training")
-    MLModel.train()
-    print("Model trained")
+print("Model started training")
+MLModel.train()
+print("Model trained")
 
 #app.run(port=12345)
