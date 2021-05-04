@@ -7,9 +7,6 @@ corpus
 sklearn
 preprocessing
 scikit-learn
-linear_model
-multiclass
-svm
 requests
 bs4
 uwsgi
