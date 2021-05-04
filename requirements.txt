@@ -2,7 +2,6 @@ Flask
 flask_restful
 flask_cors
 pandas
-ast
 nltk
 nltk.corpus
 re
