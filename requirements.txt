@@ -1,0 +1,16 @@
+Flask
+flask_restful
+flask_cors
+pandas
+ast
+nltk
+nltk.corpus
+re
+sklearn.preprocessing
+sklearn.feature_extraction.text
+sklearn.linear_model
+sklearn.multiclass
+sklearn.svm
+requests
+bs4
+uwsgi

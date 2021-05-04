@@ -1,0 +1,91 @@
+import pandas as pd
+from ast import literal_eval
+import nltk
+from nltk.corpus import stopwords
+import re
+from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.multiclass import OneVsRestClassifier
+from sklearn.linear_model import SGDClassifier
+from sklearn.svm import SVC
+import requests
+from bs4 import BeautifulSoup
+
+
+def de_repeat(text):    
+    pattern = re.compile(r"(.)\1{2,}")
+    return pattern.sub(r"\1\1", text)
+
+class MLModel():
+    
+    clf=None
+    stop=None
+    Tv=None
+    binarizer=None
+    
+    @classmethod
+    def train(cls):
+        df= pd.read_csv("Organised_Data_gt_7.csv")
+        
+        df['Content_Tags']=df['Content_Tags'].apply(literal_eval)
+        
+        dl = nltk.downloader.Downloader("http://nltk.org/nltk_data/")
+        dl.download("stopwords")
+        
+        Train_X =df['Content']
+        Train_X = Train_X.apply(lambda x: " ".join(x.lower() for x in x.split()))
+        Train_X = Train_X.str.replace('[^\w\s]',' ')
+        cls.stop = stopwords.words('english')
+        Train_X = Train_X.apply(lambda x: " ".join(x for x in x.split() if x not in cls.stop))
+        
+        Train_X = Train_X.apply(lambda x: " ".join(de_repeat(x) for x in x.split()))
+        
+        cls.binarizer = MultiLabelBinarizer()
+        labels = cls.binarizer.fit_transform(df['Content_Tags'])
+        
+        Y=labels
+        cls.Tv = TfidfVectorizer(max_df=0.5,max_features=10000 ,stop_words="english", sublinear_tf=True, norm='l2', ngram_range=(1, 2))
+        
+        xtrain_tfidf = cls.Tv.fit_transform(Train_X)
+        xtrain_tfidf
+        
+        Sg=SGDClassifier(max_iter=1000)
+        svc=SVC()
+        
+        cls.clf = OneVsRestClassifier(Sg)
+        cls.clf.fit(xtrain_tfidf, Y)
+        
+    @classmethod  
+    def test_para(cls,text):
+        text = " ".join(x.lower() for x in text.split())
+        text=text.replace('[^\w\s]',' ')
+        text= " ".join(x for x in text.split() if x not in cls.stop)
+        pattern = re.compile(r"(.)\1{2,}")
+        text = pattern.sub(r"\1\1", text)
+        k=cls.clf.predict(cls.Tv.transform([text]))
+        return cls.binarizer.inverse_transform(k)
+    
+    @classmethod
+    def test_link(cls,url):
+        page=requests.get(url)
+        soup = BeautifulSoup(page.content,'html.parser')
+        text = soup.find_all("p")
+        each_para=[]
+        for j in range(len(text)):
+          each_para.append(text[j].get_text())
+        text =str(text)
+        return cls.test_para(text)
+
+
+
+
+#obj = MLModel()
+#print("model training")
+#obj.train()
+#print("model testing")
+#print(obj.test_para("""International Journal of Engineering Applied Sciences and Technology, 2020  Vol. 5, Issue 8, ISSN No. 2455-2143, Pages 207-210  Published Online December 2020 in IJEAST (http://www.ijeast.com) 207 PERSONALIZED MEDICINE: REDEFINING CANCER TREATMENT USING MACHINE LEARNING  Akash Kumar Kandibanda Sai Santhosh  Department of Computer Science Department of Computer Science  Lovely Professional University, India Lovely Professional University, India Abstract- We are proposing a novel model for Classify the given genetic variations/mutations based on evidence from text-based clinical literature. Our model helps Molecular pathologists to classify the cancer tumor variations into 9 classes. As before molecular pathologists have to manually study all the variations which took a lot of time and effort. To solve this problem we are making a machine learning model and training it on more than 4k data points which is provided by the cancer organization of America for research and development purposes and achieve 97% accuracy by applying the optimal machine learning algorithm. Technology Stacks: Python3, Natural language processing, Google Colab. Keywords- Molecular, pathologist, cancer, mutations I. INTRODUCTION A great deal has been said during the previous quite a long while about how accurate medication and, all the more solidly, how hereditary testing will disturb the manner in which illnesses like disease are treated. This is just mostly occurring because of the immense measure of manual work actually required. Dedication Sloan Kettering Cancer Center (MSKCC) dispatched this opposition, acknowledged by the NIPS 2017 Competition Track, and we are causing the customized medication to its full To potential. Once sequenced, a malignancy tumor can have a great many hereditary changes. Yet, the test is recognizing the changes that add to tumor development (drivers) from the unbiased transformations (travelers). Right now, this translation of hereditary transformations is being done physically. This is an exceptionally tedious errand where a clinical pathologist needs to physically audit and group each and every hereditary change dependent on proof from textbased clinical writing, Huerga et al.(2017)[1] MSKCC is making accessible a specialist explained information base where a-list scientists and oncologists have physically clarified a huge number of mutations. We are building up a Machine Learning calculation that, utilizing this information base as a standard, naturally arranges hereditary variations. We comprehend that dissecting text speaks to a troublesome test, yet in all honesty, is the present status of the craftsmanship with regards to the translation of hereditary variations. The workflow is as follows 1. A subatomic pathologist chooses a rundown of hereditary varieties of interest that he/she needs to dissect. 2. The sub-atomic pathologist looks for proof in the clinical writing that some way or another are pertinent to the hereditary varieties of interest. 3. At long last, this sub-atomic pathologist invests a tremendous measure of energy examining the proof identified with every one of the varieties to characterize them. Our objective here is to supplant stage 3 by an AI model. The atomic pathologist will in any case need to choose which varieties are of interest, and furthermore gather significant proof for them. Yet, the last advance, which is additionally the most tedious, will be completely automated. There are nine distinct classes a hereditary change can be ordered on. This is certainly not an insignificant assignment since deciphering clinical proof is extremely testing in any event, for human trained professionals, Kaggle et al.(2017)[2]. In this way, displaying the clinical proof (text) will be basic for the accomplishment of your approach. Both preparing and test, informational collections are given through two distinct records. One (preparing/test_variants) gives the data about the hereditary changes, while the other (preparing/test_ text) gives the clinical proof (text) that our human specialists used to characterize the hereditary transformations. Both are connected through the ID field. Therefore the hereditary transformation (column) with ID=15 in the document training_variants, was grouped utilizing the clinical proof (text) from the line with ID=15 in the recorded training_ text Finally, to make it all the more energizing!! Probably the test information is machine - produced to forestall hand marking. You will present all the aftereffects of your characterization calculation, and we will overlook the machine-created tests.  International Journal of Engineering Applied Sciences and Technology, 2020  Vol. 5, Issue 8, ISSN No. 2455-2143, Pages 207-210  Published Online December 2020 in IJEAST (http://www.ijeast.com) 208 Dataset descriptions 1. training_variants - a comma-isolated document containing the depiction of the hereditary transformations utilized for preparing. Fields are ID (the id of the column used to connect the transformation to the clinical proof), Gene (the quality where this hereditary transformation is found), Variation (the aminoacid change for this transformations), Class (1-9 the class this hereditary transformation has been ordered on). 2. training_text - a twofold line (||) delimited document that contains the clinical proof (text) used to order hereditary transformations. Fields are ID (the id of the line used to connect the clinical proof to the hereditary change), Text (the clinical proof used to order the hereditary transformation). 3. test_variants - a comma isolated document containing the portrayal of the hereditary changes utilized for preparing. Fields are ID (the id of the line used to interface the change to the clinical proof), Gene (the quality) where this genetic mutation is located), Variation (the aminoacid change for these mutations). 4. test_text - a twofold line (||) delimited record that contains the clinical proof (text) used to arrange hereditary transformations. Fields are ID (the id of the column used to connect the clinical proof to the hereditary transformation), Text (the clinical proof used to arrange the hereditary change), Kaggle et al. (2017)[3]. II. PROPOSED MODEL 1. Starting with Exploratory data Analysis Normal language handling (NLP) is a subfield of phonetics, software engineering, and man-made reasoning worried about the corporations among PCs and human language, specifically how to program PCs to measure and examine a lot of characteristic language information. Wikipedia et al.(2020)[4] Data preprocessing is pivotal in any information mining measure as they straightforwardly sway the achievement pace of the task. This decreases the multifaceted nature of the information under examination as information in the genuine world is messy. Information is supposed to be messy in the event that it is missing quality, trait esteems, contain commotion or exceptions, and copy or wrong information. The presence of any of these will corrupt the nature of the results. After bringing in all important documents from sklearn, pandas, NumPy and Tensorflow we began with preprocessing of the content from the training_text dataset and attempting to examine the significance and semantic connection between them by applying NLP. 2. Training your model Cross Validation is a very useful technique for assessing the Cross-Validation is an extremely helpful strategy for evaluating the adequacy of your model, especially in situations where you need to moderate overfitting. It is additionally of utilization in deciding the hyperparameters of your model, as in which boundaries will bring about the most reduced test mistake. This is all the essential you require to begin with cross - approval. You can begin with a wide range of approval strategies utilizing Scikit-Learn, which gets you ready for action with only a couple of lines of code in python, Pandey Pranjal et al. (2019)[5]. We did test, train, and cross-approval on the preparation informational collection and we straightforwardly leaped to the distribution table among the unique features. Fig no. (1) Details about the dataset (2) More information about data space. This distribution describes the grouping or the density of the observations, called the probability density function. 3. Performance Matrix  International Journal of Engineering Applied Sciences and Technology, 2020  Vol. 5, Issue 8, ISSN No. 2455-2143, Pages 207-210  Published Online December 2020 in IJEAST (http://www.ijeast.com) 209 An essential stage in the detailing of activities procedure is the inference of a positioned (or appraised) rundown of serious factors, for example, quality, adaptability, cost, and so forth Brownlee Jason et al.(2020)[6] This rundown is utilized either to construe a suitable arrangement of vital activities choices or, related to an autonomously determined rundown of the association's exhibition to organize each of the serious factors. We are utilizing disarray lattice, review framework, and accuracy network. Accuracy - Recall is a valuable proportion of achievement of forecast when the classes are imbalanced. In data recovery, accuracy is a proportion of result significance, while the review is a proportion of the number of genuinely applicable outcomes returned. Equation : Precision = Tp/(Tp+Fp) Recall =Tp/(Tp+Fn) A disarray lattice is a table that is frequently used to portray the exhibition of an arrangement model (or "classifier") on a bunch of test information for which the genuine qualities are known. The disarray lattice itself is generally easy to see, yet the connected phrasing can be befuddling. We will utilize all these lattices as our presentation checker in our model. 4. Uni-variate Analysis The univariate investigation is the least complex type of breaking down data." Uni" signifies "one", so all in all, your information has just a single variable. It doesn't manage causes or connections (in contrast to relapse) and its significant objective is to depict; It takes information, sums up that information, and discovers designs in the information. We did a Univariate Analysis of Gene features utilizing examining histogram and pdf in various styles. The aim is to discover more data about quality information such no. of one of a kind quality of every classification and the relative rate between their events. Chenet et al. (2019)[7]. Fig no. (3) Univariate analysis of gene feature 5. One Hot Encoding on gene feature: Utilizing the count vectorizer work under sklearn we need to vectorize and change it so that we can utilize the manner in which we need and get the necessary arrangement to use. A one-hot encoding is a portrayal of all-out factors as paired vectors. This initially necessitates that the clear cut qualities be planned to whole number qualities. At that point, every whole number worth is spoken to as a paired vector that is each of the zero qualities aside from the list of the whole number, which is set apart with a 1. Brownlee Jason et al.(2020)[8]. 6. Machine learning model with hyperparameter 6.1 Logistic Regression Calculated relapse is an administered learning characterization calculation used to foresee the likelihood of an objective variable. The idea of a target or ward variable is dichotomous, which implies there would be just two potential classes, Wikipedia et al.(2020)[9]. In straightforward words, the reliant variable is paired in nature having information coded as one or the other 1 (represents achievement/yes) or 0 (represents disappointment/no). Mathematically, a strategic relapse model predicts P(Y=1) as a component of X. It is one of the least difficult ML calculations that can be utilized for different arrangement issues, for example, spam identification, Diabetes expectation, malignancy discovery etc. There is a sort of strategic relapse - twofold and binomial. In this model we will utilize double calculation as it is a grouping model yet to check the component we are tuning with hyperparameter. A hyperparameter is a boundary whose worth is utilized to control the learning cycle. Conversely, the estimations of different boundaries (ordinarily hub loads) are determined by means of preparing Significance of Loss work - Loss capacities give something beyond a static portrayal of how your model is performing–they're the manner by which your calculations fit information in any case. Most AI calculations utilize a type of misfortune work during the time spent advancement or finding the best boundaries (loads) for your information. We utilized logg misfortune work as our misfortune work which is truly appropriate to our model and as of now much ideal according to our necessity. Chakure Afroz et al. (2019)[10]. Equation : - log P(yt|yp) = - (yt log(yp) + (1 - yt) log(1 - yp)) Leo Breiman et al. (2001)[11]. Fig no. (4) Cross-Validation using hyperparameter   International Journal of Engineering Applied Sciences and Technology, 2020  Vol. 5, Issue 8, ISSN No. 2455-2143, Pages 207-210  Published Online December 2020 in IJEAST (http://www.ijeast.com) 210 6.2 Random Forest Irregular timberland is a managed learning calculation. The "timberland" it constructs, is a gathering of choice trees, typically prepared with the "sacking" technique. The overall thought of the packing strategy is that a blend of learning models expands the general outcome, Breiman et al.(1998a)[12]. Set forth plainly: irregular timberland assembles numerous choice trees and combines them to get a more precise and stable forecast, Grove et al.(1998)[13]. Fig no. (5) Calculating Log Loss (6) Recall matrix (7) Precision matrix (8) Confusion matrix III. CONCLUSION As we can see, Log loss is minimum in the random forest model around 1.1, therefore RFM is the bestsuited model and hence we can use it to classify the genetic mutation into 9 classes which help the pathologist to study in a short period of time. IV. REFERENCE [1] Huerga Iker. (2017). Posted in msk-redefiningcancer-treatment in a discussion section: Welcome from MSKCC (Kaggle). [Internet] Available from: here. . [2] Kaggle. (2017). Online Data science portal: Data Description online Community of data science. [Internet] Available from: here.. [3] Kaggle. (2017). Data Description online Community of data science. [Internet] Available from: here. [4] Wikipedia. (2020). Online Encyclopedia: Natural Language Processing. [Internet] Available from: here . . [5] Pandey Pranjal. (2019). Data preprocessing: Concepts. [Internet] Available from: here . [6] Brownlee Jason. (2020). A Gentle Introduction to k-fold Cross-Validation. [Internet] Available from: here. [7] Chen, Nikias and Proakis. (2019) . with permission of the authors and of SPIE Publications, (pp 70- 72). [8] Brownlee Jason. (2020). Why One-Hot Encode Data in Machine Learning?. [Internet] Available from: here [9] Wikipedia. (2020). Online Encyclopedia: Linear regression. [Internet] Available from: here. [10]Chakure Afroz . (2019). Random Forest Regression. [Internet] Available from: here. [11] Leo Breiman. (2001). RANDOM FORESTS, Statistics Department University of California Berkeley, CA 94720, (pp 5-9). [12]Breiman, L. (1998a), Arcing Classifiers, (discussion paper) Annals of Statistics, 26, 801- 824 [13] Grove, A. and Schuurmans, D. (1998) . Boosting in the limit: Maximizing the margin of learned ensembles. In Proceedings of the Fifteenth National Conference on Artificial Intelligence (AAAI-98)."""))
+
+#model class
+# function la model train
+#function la input output 
