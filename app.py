@@ -11,7 +11,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 class ModelLink(Resource):
     
     def post(self):
-        parser = reqparse.RequestParser()
+        """parser = reqparse.RequestParser()
         parser.add_argument('url', type=str, required=True, help="This is a mandatory field")
         data = parser.parse_args()
         
@@ -20,14 +20,14 @@ class ModelLink(Resource):
         tags=[]
         
         for tag in result[0]:
-            tags.append(tag)
+            tags.append(tag)"""
             
-        return {'tags':tags},200
+        return {'tags':["Sravan","Dyapa"]},200
 
 class ModelContent(Resource):
     
     def post(self):
-        parser = reqparse.RequestParser()
+        """parser = reqparse.RequestParser()
         parser.add_argument('content', type=str, required=True, help="This is a mandatory field")
         data = parser.parse_args()
         
@@ -36,15 +36,15 @@ class ModelContent(Resource):
         tags=[]
         
         for tag in result[0]:
-            tags.append(tag)
+            tags.append(tag)"""
         
-        return {'tags':tags},200
+        return {'tags':["Sravan","Dyapa"]},200
 
 api.add_resource(ModelLink,"/link")
 api.add_resource(ModelContent,"/content")
 
-print("Model started training")
+"""print("Model started training")
 MLModel.train()
-print("Model trained")
+print("Model trained")"""
 
 #app.run(port=12345)
