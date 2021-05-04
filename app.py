@@ -43,7 +43,6 @@ class ModelContent(Resource):
 api.add_resource(ModelLink,"/link")
 api.add_resource(ModelContent,"/content")
 
-logger=logging.getLogger()
 
 @app.before_first_request
 def firstRequest():
@@ -52,4 +51,3 @@ def firstRequest():
     print("Model trained")
 
 #app.run(port=12345)
-        
