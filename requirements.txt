@@ -4,11 +4,12 @@ flask_cors
 pandas
 nltk
 corpus
-sklearn.preprocessing
-sklearn.feature_extraction.text
-sklearn.linear_model
-sklearn.multiclass
-sklearn.svm
+sklearn
+preprocessing
+feature_extraction.text
+linear_model
+multiclass
+svm
 requests
 bs4
 uwsgi
