@@ -2,7 +2,6 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from modules.model import MLModel
 from flask_cors import CORS
-import logging
 
 app = Flask(__name__)
 api = Api(app)
@@ -23,9 +22,7 @@ class ModelLink(Resource):
         for tag in result[0]:
             tags.append(tag)
             
-        return {'tags':tags},200,\
-    { 'Access-Control-Allow-Origin': '*', \
-      'Access-Control-Allow-Methods' : 'POST' }
+        return {'tags':tags},200
 
 class ModelContent(Resource):
     
@@ -41,9 +38,7 @@ class ModelContent(Resource):
         for tag in result[0]:
             tags.append(tag)
         
-        return {'tags':tags},200,\
-    { 'Access-Control-Allow-Origin': '*', \
-      'Access-Control-Allow-Methods' : 'POST' }
+        return {'tags':tags},200
 
 api.add_resource(ModelLink,"/link")
 api.add_resource(ModelContent,"/content")
@@ -52,9 +47,9 @@ logger=logging.getLogger()
 
 @app.before_first_request
 def firstRequest():
-    logger.info("Model started training")
+    print("Model started training")
     MLModel.train()
-    logger.info("Model trained")
+    print("Model trained")
 
 #app.run(port=12345)
         
