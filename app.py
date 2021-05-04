@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from modules.model import MLModel
 from flask_cors import CORS
+import logging
 
 app = Flask(__name__)
 api = Api(app)
@@ -43,12 +44,13 @@ class ModelContent(Resource):
 api.add_resource(ModelLink,"/link")
 api.add_resource(ModelContent,"/content")
 
+logger=logging.getLogger()
 
 @app.before_first_request
 def firstRequest():
-    print("Model started training")
+    logger.info("Model started training")
     MLModel.train()
-    print("Model trained")
+    logger.info("Model trained")
 
 app.run(port=12345)
         
