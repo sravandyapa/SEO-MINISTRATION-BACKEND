@@ -20,7 +20,7 @@ def de_repeat(text):
 class MLModel():
     
     clf=pickle.load(open('./modules/model.pkl', 'rb'))
-    stop=None
+    stop=pickle.load(open('./modules/stopwords.pkl', 'rb'))
     Tv=None
     binarizer=None
     
@@ -29,10 +29,6 @@ class MLModel():
         df= pd.read_csv("Organised_Data_gt_7.csv")
         
         df['Content_Tags']=df['Content_Tags'].apply(literal_eval)
-        
-        dl = nltk.downloader.Downloader("http://nltk.org/nltk_data/")
-        dl.download("stopwords")
-        cls.stop = stopwords.words('english')
         
         Train_X = pickle.load(open('./modules/train.pkl', 'rb'))
         cls.binarizer = MultiLabelBinarizer()
@@ -63,3 +59,7 @@ class MLModel():
           each_para.append(text[j].get_text())
         text =str(text)
         return cls.test_para(text)
+
+
+
+
