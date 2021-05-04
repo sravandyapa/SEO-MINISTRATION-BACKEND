@@ -3,7 +3,7 @@ flask_restful
 flask_cors
 pandas
 nltk
-nltk.corpus
+nltk corpus
 re
 sklearn.preprocessing
 sklearn.feature_extraction.text
