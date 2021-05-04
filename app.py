@@ -23,7 +23,9 @@ class ModelLink(Resource):
         for tag in result[0]:
             tags.append(tag)
             
-        return {'tags':tags},200
+        return {'tags':tags},200,\
+    { 'Access-Control-Allow-Origin': '*', \
+      'Access-Control-Allow-Methods' : 'PUT,GET' }
 
 class ModelContent(Resource):
     
@@ -39,7 +41,9 @@ class ModelContent(Resource):
         for tag in result[0]:
             tags.append(tag)
         
-        return {'tags':tags},200
+        return {'tags':tags},200,\
+    { 'Access-Control-Allow-Origin': '*', \
+      'Access-Control-Allow-Methods' : 'PUT,GET' }
 
 api.add_resource(ModelLink,"/link")
 api.add_resource(ModelContent,"/content")
